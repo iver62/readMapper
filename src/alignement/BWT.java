@@ -12,13 +12,18 @@ public class BWT {
 		n = genome.length();
 	}
 
-	public String run() {
-		String res = new String();
+	public char[] run() {
+		char[] res = new char[n];
 		String[] rotations = rotate();
 		Arrays.sort(rotations);
 		for (int i = 0; i < n; i++) {
-			res += rotations[i].charAt(n-1);
+			res[i] = rotations[i].charAt(n-1);
 		}
+		return res;
+	}
+	
+	public int[] moveToFront() {
+		int[] res = new int[n];
 		return res;
 	}
 	
@@ -47,12 +52,21 @@ public class BWT {
 		for (int i = 0; i < tab.length; i++) {
 			System.out.println(tab[i]);
 		}
+		System.out.println();
 	}
 	
 	public void printTable(int[] tab) {
 		for (int i = 0; i < tab.length; i++) {
 			System.out.print(tab[i] + " ");
 		}
+		System.out.println();
+	}
+	
+	public void printTable(char[] tab) {
+		for (int i = 0; i < tab.length; i++) {
+			System.out.print(tab[i] + " ");
+		}
+		System.out.println();
 	}
 
 }
