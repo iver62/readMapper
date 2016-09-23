@@ -1,5 +1,6 @@
 package alignement;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class BWT {
@@ -12,7 +13,7 @@ public class BWT {
 		n = genome.length();
 	}
 
-	public char[] run() {
+	public char[] transform() {
 		char[] res = new char[n];
 		String[] rotations = rotate();
 		Arrays.sort(rotations);
@@ -22,11 +23,26 @@ public class BWT {
 		return res;
 	}
 	
-	public int[] moveToFront() {
-		int[] res = new int[n];
+	public byte[] encode() {
+		byte[] res = new byte[n];
+		char[] bwt = transform();
+		ArrayList<Byte> alpha = new ArrayList<Byte>();
+		for (int i = 0; i < bwt.length; i++) {
+			res[i] = (byte) alpha.indexOf(bwt[i]);
+			alpha.remove(res[i]);
+			alpha.add(0, (byte) bwt[i]);
+		}
 		return res;
 	}
 	
+	private char[] alphabet() {
+		char[] alpha = new char[256];
+		for (int i = 0; i < genome.length(); i++) {
+//			genome.
+		}
+		return null;
+	}
+
 	private String[] rotate() {
 		String[] rotations = new String[n];
 		for (int i = 0; i < n; i++) {
