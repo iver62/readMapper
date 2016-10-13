@@ -6,16 +6,16 @@ public class Test {
 		
 		String genome = "tgggatggatcaaccctaacagtggtggcacaaactatgcacagaagtttcagggcagggtcaccatgaccagggacacgtccatcagcacagcctacatggagctgagcaggctgagatctgacgacacggccgtgtattactgtgcgagaga";
 		String read = "ttgcacgcattgattgggatgatgataaatactacagcacatctctgaagaccaggctcaccatctccaaggacacctccaaaaaccaggtggtccttacaatgaccaacatggaccctgtggacacggccgtgtattactg";
-//		String genome = "attatc";
+//		String genome = "attatccgatt";
 //		String read = "actatc";
-		kBand kea = new kBand(genome, read, 5, -4, -10, 20);
-		kea.buildSimMatrix();
-//		kea.printSimMatrix();
+		kBand kb = new kBand(genome, read, 5, -4, -10, 18);
+		kb.buildSimMatrix();
+//		kb.printSimMatrix();
 //		kea.printTraceMatrix();
-		String alignement = kea.align();
+		String alignement = kb.align();
 		System.out.println(alignement);		
-		System.out.println(kea.nbMatches + " matches");
-		System.out.println(kea.nbGAPS + " gaps");
+		System.out.println(kb.nbMatches + " matches");
+		System.out.println(kb.nbGAPS + " gaps");
 	}
 
 }
