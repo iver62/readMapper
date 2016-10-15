@@ -1,9 +1,10 @@
 package alignement;
 import java.util.Random;
 
-public class kBand {
+public class KBand {
 
-	private String genome, read; // les 2 sequences a aligner
+	private String genome; 
+	private Read read;
 	private int match, sub, gap; // les scores
 	private int k; // nombre d'erreurs tolerees
 	private int[][] sim; // la mmatrice de similarite
@@ -11,7 +12,7 @@ public class kBand {
 	private int n, m; // les longueurs des sequences
 	public int nbGAPS, nbMatches;
 	
-	public kBand(String genome, String read, int match, int sub, int gap, int k) {
+	public KBand(String genome, Read read, int match, int sub, int gap, int k) {
 		this.genome = genome;
 		this.read = read;
 		this.match = match;
@@ -25,23 +26,19 @@ public class kBand {
 	}
 
 	/**
-	 * Construit la matrice de similarite
+	 * Construit la matrice de similarite entre le bout de genome et le read
 	 */
 	public void buildSimMatrix() {
 		
-		// initialisation de la matrice
+		// initialisation de la matrice (remplissag de la 1ere colonne et de la 1ere ligne
 		sim[0][0] = 0;
-		for (int j = 1; j < m+1; j++) {
-			if (j <= k) {
-				sim[0][j] = sim[0][j-1] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case gauche + gap
-				trace[0][j][2] = 'l'; // on arrive de la gauche
-			}
+		for (int j = 1; j <= k && j <= m; j++) {
+			sim[0][j] = sim[0][j-1] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case gauche + gap
+			trace[0][j][2] = 'l'; // on arrive de la gauche
 		}
-		for (int i = 1; i < n+1; i++) {
-			if (i <= k) {
-				sim[i][0] = sim[i-1][0] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case dessus + gap
-				trace[i][0][1] = 't';  // on arrive du dessus
-			}
+		for (int i = 1; i <= k && i <= n; i++) {
+			sim[i][0] = sim[i-1][0] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case dessus + gap
+			trace[i][0][1] = 't';  // on arrive du dessus
 		}
 		
 		// remplissage de l'interieur de la matrice
@@ -69,18 +66,20 @@ public class kBand {
 	}
 	
 	/**
-	 * Aligne les 2 sequences
+	 * Aligne les 2 sequences selon la methode du backtracing
 	 */
-	public String align() {
+	public Alignement backtrace() {
 		String resU = new String(); // u avec les eventuels gaps
 		String resV = new String(); // v avec les eventuels gaps
 		String mil = new String(); // l'alignement entre u et v
 //		int i = trace.length-1, j = trace[0].length-1; // on parcourt la matrice depuis le coin inferieur droit jusqu'au coin superieur gauche
-		int i = n, j = Math.min(m, n+k); 
-		char[] res;
-		while (i != 0 || j != 0) {
-			res = new char[3];
-			int l = 0;
+		int i = n, j = Math.min(m, n+k);
+		int score = sim[i][j];
+		char[] res; // tableau contenant les differentes possibilites de remonter
+		
+		while (i != 0 || j != 0) { // on remonte jusqu'a arriver a la case en haut a gauche
+			res = new char[3]; // 3 differentes possibilites de remonter
+			int l = 0; // le nombre de possibilites de remonter
 			if (trace[i][j][0] == 'd') {
 				res[l++] = 'd';
 			}
@@ -90,7 +89,8 @@ public class kBand {
 			if (trace[i][j][2] == 'l') {
 				res[l++] = 'l';
 			}
-			char c = res[new Random().nextInt(l+1)]; // on en choisit 1 au hasard
+			char c = res[new Random().nextInt(l)]; // on en choisit 1 au hasard
+			
 			switch (c) {
 			case 'd': // soit un match, soit une substitution
 				resU += genome.charAt(j-1); 
@@ -102,30 +102,29 @@ public class kBand {
 				else { // sinon on ne met rien
 					mil += " ";
 				}
-				i--; j--;
+				i--; j--; // on remonte en diagonale dans la matrice
 				break;
 			case 'l': // une deletion
 				resU += genome.charAt(j-1);
 				resV += "-";
 				mil += " ";
-				j--;
+				j--; // on va dans la case de gauche
 				nbGAPS++;
 				break;
 			case 't': // une insertion
 				resU += "-";
 				resV += read.charAt(i-1);
 				mil += " ";
-				i--;
+				i--; // on remonte dans la case du haut
 				nbGAPS++;
 				break;
 			default:
 				break;
 			}
 		}
-		String uAligne = reverse(resU);
-		String vAligne = reverse(resV);
-		String matchesString = reverse(mil);
-		return uAligne + "\n" + matchesString + "\n" + vAligne;
+		
+		double prop = (double)nbGAPS/(double)read.length() * 100;
+		return new Alignement(reverse(resU), reverse(resV), reverse(mil), score, prop);
 	}
 	
 	private String reverse(String str) {
