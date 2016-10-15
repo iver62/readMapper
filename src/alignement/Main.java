@@ -7,15 +7,19 @@ import utils.MyFileReader;
 public class Main {
 
 	public static void main(String[] args) {
-		String genome = MyFileReader.loadGenome("data/testgenome.txt");
+		String genome = MyFileReader.loadGenome("data/ebolavirus.fa");
 		genome += "$";
-		List<Read> reads = MyFileReader.loadReads("data/testreads.txt");
+		List<Read> reads = MyFileReader.loadReads("data/ebolareads33.fa");
 		
-		System.out.println(genome);
-		System.out.println(reads.toString());
+//		System.out.println(genome);
+//		System.out.println(reads.toString());
 		
 		Mapper map = new Mapper(genome, reads);
-		map.run(2, 5, 4, -10, 2, 10);
+		long deb = System.currentTimeMillis();
+		map.run(25, 5, 4, -10, 0.1);
+		long time = System.currentTimeMillis() - deb;
+		System.out.println(time / 1000 + "secondes");
+		
 
 	}
 

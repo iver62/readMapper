@@ -3,22 +3,18 @@ package alignement;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.MyFileWriter;
+
 public class Mapper {
 	
 	private String genome;
 	private List<Read> reads;
 	private BurrowsWheelerStructure bws;
 	private KBand kb;
-//	private int match, sub, gap; // les scores
-//	private int k;
 	
-	public Mapper(String genome, List<Read> reads/*, int match, int sub, int gap, int k*/) {
+	public Mapper(String genome, List<Read> reads) {
 		this.genome = genome;
 		this.reads = reads;
-//		this.match = match;
-//		this.sub = sub;
-//		this.gap = gap;
-//		this.k = k;
 		bws = new BurrowsWheelerStructure(genome);
 		bws.init();
 	}
@@ -40,59 +36,63 @@ public class Mapper {
 		return matchedSeeds;
 	}
 	
-	public void extend(Seed seed, int match, int sub, int gap, int k, int p) {
+	public Alignement extend(Seed seed, int match, int sub, int gap,/* int k,*/ double p) {
 		List<Alignement> aligns = new ArrayList<Alignement>();
-		Read r = seed.getRead();
-		for (Integer i : seed.getPositions()) {
-			if (i + r.length() < genome.length()) {
-				String genomeSequence = genome.substring(i-seed.getPosition(), i+r.length());
-				kb = new KBand(genomeSequence, r, match, sub, gap, k);
+		Read r = seed.getRead(); // le read auquel la graine appartient
+		for (Integer i : seed.getPositions()) { // pour chaque position de la graine dans le genome
+			int pos = i - seed.getPosition(); // la position dans le genome ou l'alignement commence
+			if (i + r.length() <= genome.length()) {
+				String genomeSequence = genome.substring(pos, i+r.length());
+				kb = new KBand(genomeSequence, r, match, sub, gap, (int)(r.length()*p));
 				kb.buildSimMatrix();
 				Alignement align = kb.backtrace();
-				aligns.add(align);
+				align.setPosition(pos);
 //				System.out.println(align);
+				aligns.add(align);
 			}
 		}
 		Alignement best = bestAlign(aligns);
-		if (best.getProp() <= p) {
-			System.out.println("meilleur alignement = \n" + best);
+		if (best.getProp() < p*100) {
+//			System.out.println("best : \n" + best);
+			return best;
 		}
-//		return kb.backtrace();
+		return null;
 	}
 	
 	private Alignement bestAlign(List<Alignement> aligns) {
-		Alignement best = aligns.get(0);
-		for (Alignement align : aligns) {
-			if (align.getScore() > best.getScore()) {
-				best = align;
+		if (aligns.size() > 0) {
+			Alignement best = aligns.get(0);
+			for (Alignement align : aligns) {
+				if (align.getScore() > best.getScore()) {
+					best = align;
+				}
 			}
+			return best;
 		}
-		return best;
+		return null;
 	}
 
-	public void run(int l, int match, int sub, int gap, int k, int p) {
+	public void run(int l, int match, int sub, int gap,/* int k,*/ double p) {
+		List<Alignement> res = new ArrayList<Alignement>();
+		int cpt = 1;
 		for (Read r : reads) { // pour chaque read a aligner
+			System.out.println(cpt++);
+			List<Alignement> aligns = new ArrayList<Alignement>();
 			List<Seed> seeds = SearchSeeds(r, l); // la liste de toutes les graines de longueur l qui matchent le genome
 			for (Seed s : seeds) {
-				extend(s, match, sub, gap, k, p);
+				Alignement align = extend(s, match, sub, gap, /*k,*/ p);
+				if (align != null) {
+					aligns.add(align);
+				}
+			}
+			Alignement best = bestAlign(aligns);
+			if (best != null) {
+				res.add(best);
 			}
 		}
+		
+		System.out.println((double)res.size()/(double)reads.size() * 100 + "% de sequences alignees");
+		MyFileWriter.writeData("results.txt", res);
 	}
-
-//	public String getGenome() {
-//		return genome;
-//	}
-
-//	public Read getRead() {
-//		return read;
-//	}
-//
-//	public BurrowsWheelerStructure getBws() {
-//		return bws;
-//	}
-//
-//	public KBand getKb() {
-//		return kb;
-//	}
 
 }

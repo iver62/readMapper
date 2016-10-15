@@ -6,7 +6,6 @@ import java.util.List;
 public class Read {
 	
 	private String sequence;
-	private int position;
 	
 	public Read(String sequence) {
 		this.sequence = sequence;
@@ -38,14 +37,6 @@ public class Read {
 	 */
 	public char charAt(int i) {
 		return sequence.charAt(i);
-	}
-
-	public int getPosition() {
-		return position;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
 	}
 
 	public String toString() {
