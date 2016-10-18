@@ -17,7 +17,6 @@ public class Alignement {
 		this.prop = prop;
 	}
 
-	
 	public int getScore() {
 		return score;
 	}

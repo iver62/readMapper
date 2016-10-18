@@ -36,14 +36,14 @@ public class Mapper {
 		return matchedSeeds;
 	}
 	
-	public Alignement extend(Seed seed, int match, int sub, int gap,/* int k,*/ double p) {
+	public Alignement extend(Seed seed, ScoresSet ss, double p) {
 		List<Alignement> aligns = new ArrayList<Alignement>();
 		Read r = seed.getRead(); // le read auquel la graine appartient
 		for (Integer i : seed.getPositions()) { // pour chaque position de la graine dans le genome
 			int pos = i - seed.getPosition(); // la position dans le genome ou l'alignement commence
 			if (i + r.length() <= genome.length()) {
 				String genomeSequence = genome.substring(pos, i+r.length());
-				kb = new KBand(genomeSequence, r, match, sub, gap, (int)(r.length()*p));
+				kb = new KBand(genomeSequence, r, ss, (int)(r.length()*p));
 				kb.buildSimMatrix();
 				Alignement align = kb.backtrace();
 				align.setPosition(pos);
@@ -52,7 +52,7 @@ public class Mapper {
 			}
 		}
 		Alignement best = bestAlign(aligns);
-		if (best.getProp() < p*100) {
+		if (best != null && best.getProp() < p*100) {
 //			System.out.println("best : \n" + best);
 			return best;
 		}
@@ -72,20 +72,20 @@ public class Mapper {
 		return null;
 	}
 
-	public void run(int l, int match, int sub, int gap,/* int k,*/ double p) {
+	public void run(int l, ScoresSet ss, double p) {
 		List<Alignement> res = new ArrayList<Alignement>();
 		int cpt = 1;
 		for (Read r : reads) { // pour chaque read a aligner
 			System.out.println(cpt++);
 			List<Alignement> aligns = new ArrayList<Alignement>();
 			List<Seed> seeds = SearchSeeds(r, l); // la liste de toutes les graines de longueur l qui matchent le genome
-			for (Seed s : seeds) {
-				Alignement align = extend(s, match, sub, gap, /*k,*/ p);
+			for (Seed s : seeds) { // pour chaque graine
+				Alignement align = extend(s, ss, p); // le meilleur alignement pour chaque graine a condition qu'il y ait moins de p*100 % d'erreurs
 				if (align != null) {
 					aligns.add(align);
 				}
 			}
-			Alignement best = bestAlign(aligns);
+			Alignement best = bestAlign(aligns); // le meilleur alignement pour toutes les graines
 			if (best != null) {
 				res.add(best);
 			}

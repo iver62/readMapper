@@ -11,12 +11,11 @@ public class Main {
 		genome += "$";
 		List<Read> reads = MyFileReader.loadReads("data/ebolareads33.fa");
 		
-//		System.out.println(genome);
-//		System.out.println(reads.toString());
-		
 		Mapper map = new Mapper(genome, reads);
+		ScoresSet ss = new ScoresSet(5, -4, -10);
 		long deb = System.currentTimeMillis();
-		map.run(25, 5, 4, -10, 0.1);
+		System.out.println("Running...");
+		map.run(25, ss, 0.1);
 		long time = System.currentTimeMillis() - deb;
 		System.out.println(time / 1000 + "secondes");
 		

@@ -6,6 +6,12 @@ import java.util.List;
 public class Read {
 	
 	private String sequence;
+	private String name;
+	
+	public Read(String name, String sequence) {
+		this.name = name;
+		this.sequence = sequence;
+	}
 	
 	public Read(String sequence) {
 		this.sequence = sequence;
@@ -37,6 +43,10 @@ public class Read {
 	 */
 	public char charAt(int i) {
 		return sequence.charAt(i);
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String toString() {

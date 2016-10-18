@@ -41,8 +41,10 @@ public class MyFileReader {
 			BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (!line.equals("") && !line.startsWith(">")) { // on ne lit pas la 1ere ligne ni les lignes vides
-					reads.add(new Read(line));
+				String[] tab = line.split(" ");
+				String name = tab[0];
+				if (!line.equals("") && !line.startsWith(">")) {
+					reads.add(new Read(name, line));
 				}
 			}
 			br.close();

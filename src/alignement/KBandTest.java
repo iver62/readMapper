@@ -8,7 +8,7 @@ public class KBandTest {
 		Read read = new Read("ttgcacgcattgattgggatgatgataaatactacagcacatctctgaagaccaggctcaccatctccaaggacacctccaaaaaccaggtggtccttacaatgaccaacatggaccctgtggacacggccgtgtattactg");
 //		String genome = "attatccgatt";
 //		String read = "actatc";
-		KBand kb = new KBand(genome, read, 5, -4, -10, 20);
+		KBand kb = new KBand(genome, read, new ScoresSet(5, -4, -10), 20);
 		kb.buildSimMatrix();
 		kb.printSimMatrix();
 //		kb.printTraceMatrix();
