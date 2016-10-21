@@ -40,10 +40,13 @@ public class MyFileReader {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 			String line;
+			String name = null;
 			while ((line = br.readLine()) != null) {
-				String[] tab = line.split(" ");
-				String name = tab[0];
-				if (!line.equals("") && !line.startsWith(">")) {
+				if (line.startsWith(">")) {
+					String[] tab = line.split(" ");
+					name = tab[0];
+				}
+				else /*if (!line.equals("") && !line.startsWith(">")) */{
 					reads.add(new Read(name, line));
 				}
 			}

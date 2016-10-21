@@ -14,7 +14,10 @@ public class Mapper {
 	
 	public Mapper(String genome, List<Read> reads) {
 		this.genome = genome;
-		this.reads = reads;
+		this.reads = reads;		
+	}
+	
+	public void init() {
 		bws = new BurrowsWheelerStructure(genome);
 		bws.init();
 	}
@@ -36,29 +39,41 @@ public class Mapper {
 		return matchedSeeds;
 	}
 	
-	public Alignement extend(Seed seed, ScoresSet ss, double p) {
+	/**
+	 * Algorithme d'extension (par programmation dynamique) sur les occurences d'une graine 
+	 * @param seed la graine
+	 * @param match cout d'un match
+	 * @param sub cout d'une substitution
+	 * @param gap cout d'une insertion/deletion
+	 * @param p le taux d'erreurs acceptees
+	 * @return le meilleur alignement concernant une graine
+	 */
+	public Alignement extend(Seed seed, int match, int sub, int gap, double t) {
 		List<Alignement> aligns = new ArrayList<Alignement>();
 		Read r = seed.getRead(); // le read auquel la graine appartient
 		for (Integer i : seed.getPositions()) { // pour chaque position de la graine dans le genome
 			int pos = i - seed.getPosition(); // la position dans le genome ou l'alignement commence
 			if (i + r.length() <= genome.length()) {
-				String genomeSequence = genome.substring(pos, i+r.length());
-				kb = new KBand(genomeSequence, r, ss, (int)(r.length()*p));
-				kb.buildSimMatrix();
+				String genomeSequence = genome.substring(pos, i+r.length()); // la sequence genomique a aligner
+				kb = new KBand(genomeSequence, r, match, sub, gap, (int)(r.length()*t));
+				kb.buildSimMatrix(); // construction de la matrice de programmation dynamique
 				Alignement align = kb.backtrace();
 				align.setPosition(pos);
-//				System.out.println(align);
 				aligns.add(align);
 			}
 		}
-		Alignement best = bestAlign(aligns);
-		if (best != null && best.getProp() < p*100) {
-//			System.out.println("best : \n" + best);
+		Alignement best = bestAlign(aligns); // on ne garde que le meilleur alignement
+		if (best != null && best.getProp() < t*100) {
 			return best;
 		}
 		return null;
 	}
 	
+	/**
+	 * Renvoie le meilleur alignement parmi une liste d'alignements
+	 * @param aligns une liste d'alignements
+	 * @return le meilleur alignement
+	 */
 	private Alignement bestAlign(List<Alignement> aligns) {
 		if (aligns.size() > 0) {
 			Alignement best = aligns.get(0);
@@ -72,27 +87,33 @@ public class Mapper {
 		return null;
 	}
 
-	public void run(int l, ScoresSet ss, double p) {
+	/**
+	 * Lance l'algorithme principal
+	 * @param l longueur d'une graine
+	 * @param match cout d'un match
+	 * @param sub cout d'une substitution
+	 * @param gap cout d'une insertion/deletion
+	 * @param p le taux d'erreurs acceptees
+	 */
+	public void run(int l, int match, int sub, int gap, double t) {
 		List<Alignement> res = new ArrayList<Alignement>();
-		int cpt = 1;
 		for (Read r : reads) { // pour chaque read a aligner
-			System.out.println(cpt++);
 			List<Alignement> aligns = new ArrayList<Alignement>();
 			List<Seed> seeds = SearchSeeds(r, l); // la liste de toutes les graines de longueur l qui matchent le genome
 			for (Seed s : seeds) { // pour chaque graine
-				Alignement align = extend(s, ss, p); // le meilleur alignement pour chaque graine a condition qu'il y ait moins de p*100 % d'erreurs
+				Alignement align = extend(s, match, sub, gap, t); // alignement avec le genome
 				if (align != null) {
 					aligns.add(align);
 				}
 			}
-			Alignement best = bestAlign(aligns); // le meilleur alignement pour toutes les graines
+			Alignement best = bestAlign(aligns); // on ne garde que le meilleur alignement
 			if (best != null) {
 				res.add(best);
 			}
 		}
 		
 		System.out.println((double)res.size()/(double)reads.size() * 100 + "% de sequences alignees");
-		MyFileWriter.writeData("results.txt", res);
+		MyFileWriter.writeData("data/results.txt", res);
 	}
 
 }

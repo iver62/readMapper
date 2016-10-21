@@ -5,21 +5,19 @@ public class KBand {
 
 	private String genome; 
 	private Read read;
-//	private int match, sub, gap; // les scores
-	private ScoresSet ss;
+	private int match, sub, gap; // les scores
 	private int k; // nombre d'erreurs tolerees
 	private int[][] sim; // la mmatrice de similarite
 	private char[][][] trace; //
 	private int n, m; // les longueurs des sequences
 	public int nbGAPS, nbMatches;
 	
-	public KBand(String genome, Read read, ScoresSet ss, int k) {
+	public KBand(String genome, Read read, int match, int sub, int gap, int k) {
 		this.genome = genome;
 		this.read = read;
-//		this.match = match;
-//		this.sub = sub;
-//		this.gap = gap;
-		this.ss = ss;
+		this.match = match;
+		this.sub = sub;
+		this.gap = gap;
 		this.k = k;
 		nbGAPS = 0; nbMatches = 0;
 		n = read.length(); m = genome.length();
@@ -35,11 +33,11 @@ public class KBand {
 		// initialisation de la matrice (remplissag de la 1ere colonne et de la 1ere ligne
 		sim[0][0] = 0;
 		for (int j = 1; j <= k && j <= m; j++) {
-			sim[0][j] = sim[0][j-1] + ss.gap; // on affecte toutes les cases de la 1ere ligne a : valeur case gauche + gap
+			sim[0][j] = sim[0][j-1] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case gauche + gap
 			trace[0][j][2] = 'l'; // on arrive de la gauche
 		}
 		for (int i = 1; i <= k && i <= n; i++) {
-			sim[i][0] = sim[i-1][0] + ss.gap; // on affecte toutes les cases de la 1ere ligne a : valeur case dessus + gap
+			sim[i][0] = sim[i-1][0] + gap; // on affecte toutes les cases de la 1ere ligne a : valeur case dessus + gap
 			trace[i][0][1] = 't';  // on arrive du dessus
 		}
 		
@@ -47,9 +45,9 @@ public class KBand {
 		for (int i = 1; i <= n; i++) { // on remplit ligne par ligne
 			for (int j = 1; j <= m; j++) {
 				if (Math.abs(i-j) <= k) {
-					int d = (genome.charAt(j-1) == read.charAt(i-1)) ? (sim[i-1][j-1] + ss.match) : (sim[i-1][j-1] + ss.sub); // la valeur de la case en diagonale + match si les caracteres sont egaux, + sub sinon
-					int t = (Math.abs(i-1-j) <= k) ? sim[i-1][j] + ss.gap : Integer.MIN_VALUE; // la valeur de la case du dessus + gap
-					int l = (Math.abs(i-j+1) <= k) ? sim[i][j-1] + ss.gap : Integer.MIN_VALUE; // la valeur de la case de gauche + gap
+					int d = (genome.charAt(j-1) == read.charAt(i-1)) ? (sim[i-1][j-1] + match) : (sim[i-1][j-1] + sub); // la valeur de la case en diagonale + match si les caracteres sont egaux, + sub sinon
+					int t = (Math.abs(i-1-j) <= k) ? sim[i-1][j] + gap : Integer.MIN_VALUE; // la valeur de la case du dessus + gap
+					int l = (Math.abs(i-j+1) <= k) ? sim[i][j-1] + gap : Integer.MIN_VALUE; // la valeur de la case de gauche + gap
 					int max = Math.max(d, Math.max(t, l)); // le max des trois valeurs
 					if (d == max) { // si d est un max
 						trace[i][j][0] = 'd'; // on vient de la diagonale
@@ -126,7 +124,7 @@ public class KBand {
 		}
 		
 		double prop = (double)nbGAPS/(double)read.length() * 100;
-		return new Alignement(reverse(resU), reverse(resV), reverse(mil), score, prop);
+		return new Alignement(reverse(resU), reverse(resV), reverse(mil), score, prop, read.getName());
 	}
 	
 	private String reverse(String str) {

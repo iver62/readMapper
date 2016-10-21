@@ -7,18 +7,41 @@ import utils.MyFileReader;
 public class Main {
 
 	public static void main(String[] args) {
-		String genome = MyFileReader.loadGenome("data/ebolavirus.fa");
-		genome += "$";
-		List<Read> reads = MyFileReader.loadReads("data/ebolareads33.fa");
 		
-		Mapper map = new Mapper(genome, reads);
-		ScoresSet ss = new ScoresSet(5, -4, -10);
-		long deb = System.currentTimeMillis();
-		System.out.println("Running...");
-		map.run(25, ss, 0.1);
-		long time = System.currentTimeMillis() - deb;
-		System.out.println(time / 1000 + "secondes");
+		if (args.length == 7) {
+			
+			String genomPath = args[0];
+			String readsPath = args[1];
+			int seedLength = Integer.parseInt(args[2]);
+			int match = Integer.parseInt(args[3]);
+			int sub = Integer.parseInt(args[4]);
+			int gap = Integer.parseInt(args[5]);
+			double t = Double.parseDouble(args[6]);
+			
+			String genome = MyFileReader.loadGenome(genomPath);
+			genome += "$";
+			List<Read> reads = MyFileReader.loadReads(readsPath);
+			
+			System.out.println("Running...");
+			
+			Mapper map = new Mapper(genome, reads);
+			
+			long deb = System.currentTimeMillis();
+			map.init();
+			long time = System.currentTimeMillis() - deb;
+			System.out.println(time + "ms pour l'indexation");
+			
+			long deb1 = System.currentTimeMillis();
+			map.run(seedLength, match, sub, gap, t);
+			long time1 = System.currentTimeMillis() - deb1;
+			System.out.println(time1 / 1000 + "secondes pour la recherche");
+			
+			System.out.println("Done");
+		}
 		
+		else {
+			System.out.println("Usage :\n\t java -jar readMapper.jar <genome> <reads> <longueur des graines> <match> <sub> <gap> <taux d'erreurs acceptees>");
+		}
 
 	}
 

@@ -26,7 +26,6 @@ public class Read {
 		List<Seed> seeds = new ArrayList<Seed>();
 		for (int i = 0; i < length()-l+1; i++) {
 			Seed s = new Seed(sequence.substring(i, i+l), this, i);
-//			String s = sequence.substring(i, l);
 			seeds.add(s);
 		}
 		return seeds;

@@ -27,13 +27,19 @@ public class BurrowsWheelerStructure {
 		ranks = new int[n];
 	}
 	
+	/**
+	 * Initialise la structure de Burrows-Wheeler
+	 */
 	public void init() {
-		suffixArray();
-		transform();
-		rank();
+		suffixArray(); // construction de la table des suffixes
+		transform(); // construction des colonnes last et first
+		rank(); // construction de la table des rangs
 		firstColumn();
 	}
 
+	/**
+	 * Calcule la transformee de Burrows-Wheeler
+	 */
 	public void transform() {
 		for (int i = 0; i < n; i++) {
 			F[i] = genome.charAt(suffixArray[i]);
@@ -41,6 +47,9 @@ public class BurrowsWheelerStructure {
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public void rank() {
 		for (int i = 0; i < n; i++) {
 			char c = L[i];
@@ -63,27 +72,25 @@ public class BurrowsWheelerStructure {
 	}
 	
 	/**
-	 * Cherche a quelles positions le seed matche genome
-	 * @param seed le seed a chercher
+	 * Cherche a quelles positions la graine matche le genome
+	 * @param seed la graine a chercher
 	 * @return une liste de positions
 	 */
 	public List<Integer> find(Seed seed) {
-		List<Integer> pos = new ArrayList<Integer>(); // liste des positions ou le seed matche
+		List<Integer> pos = new ArrayList<Integer>(); // liste des positions ou la graine matche
 		int l = seed.length();
-		char last = seed.charAt(l-1); // dernier caractere du seed
+		char last = seed.charAt(l-1); // dernier caractere de la graine
 		
 		if (!map.containsKey(last)) { // si la derniere lettre n'est pas dans l'alphabet du genome
-//			System.out.println(seed + " " + pos);
 			return pos;
 		}
-		int deb = first.get(last), end = deb + map.get(last); //l'intervalle de la 1ere colonne contenant la derniere lettre du seed 
+		int deb = first.get(last), end = deb + map.get(last); //l'intervalle de la 1ere colonne contenant la derniere lettre de la graine 
 		
 		for (int i = deb; i <= end; i++) { 
 			int j = i; // le caractere courant
-			while (l > 1) { // tant que tous les caracteres du seed ont ete trouves
+			while (l > 1) { // tant que tous les caracteres de la graine ont ete trouves
 				char prev = seed.charAt(l-2);
 				if (!map.containsKey(last)) {
-//					System.out.println(seed + " " + pos);
 					return pos;
 				}
 				if (L[j] == prev) {
@@ -104,7 +111,6 @@ public class BurrowsWheelerStructure {
 		
 		Collections.sort(pos);
 		seed.setPositions(pos);
-//		System.out.println(seed + " " + pos);
 		return pos;
 	}
 	
@@ -121,13 +127,6 @@ public class BurrowsWheelerStructure {
 		return enc;
 	}
 	
-//	public String decode() {
-//		String res = new String();
-//		int[] sa = suffixArray();
-//		char[] t = transform();
-//		return res;
-//	}
-	
 	public ArrayList<Character> alphabet() {
 		ArrayList<Character> alpha = new ArrayList<Character>();
 		for (int i = 0; i < genome.length(); i++) {
@@ -140,16 +139,8 @@ public class BurrowsWheelerStructure {
 		return alpha;
 	}
 
-//	private String[] rotate() {
-//		String[] rotations = new String[n];
-//		for (int i = 0; i < n; i++) {
-//			rotations[i] = genome.substring(n-i, n) + genome.substring(0, n-i);
-//		}
-//		return rotations;
-//	}
-
 	/**
-	 * @return un tableau d'entiers representant la table des suffixes
+	 * Construit la table des suffixes
 	 */
 	public void suffixArray() {
 		String[] suffixes = new String[n];
@@ -161,13 +152,6 @@ public class BurrowsWheelerStructure {
 			suffixArray[i] = genome.indexOf(suffixes[i]);
 		}
 	}
-	
-//	public void printTable(String[] tab) {
-//		for (int i = 0; i < tab.length; i++) {
-//			System.out.println(tab[i]);
-//		}
-//		System.out.println();
-//	}
 	
 	public void printTable(int[] tab) {
 		for (int i = 0; i < tab.length; i++) {
