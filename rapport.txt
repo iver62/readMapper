@@ -1,0 +1,21 @@
+Rapport TP Read Mapper
+
+Pour la méthode d'indexation du génome je construis une table des suffixes puis, à partir de cette table, je calcule la transformée de Burrows-Wheeler.
+Dans la structure de Burrows-Wheeler j'ai une map qui indique le nombre d'occurences de chaque caractère du génome et un tableau ranks qui indique combien 
+de fois un caractere apparait de la position 0 à la position i du génome.
+
+Pour la méthode de recherche j'extrais toutes les graines du read et je les cherche sans tolérer d'erreurs. Ensuite j'effectue l'extension sur toutes les occurences 
+de graines trouvées. Je ne prends en compte que les alignements qui ont moins de 10% d'erreurs, parmi ceux-ci je garde l'alignement qui a obtenu le meilleur score.
+Donc un read ne peut être aligné qu'une seule fois dans le génome.
+
+J'ai effectué un test sur le virus ebola en ayant une graine de 25 nucléotides qui ne tolère pas d'erreur. Le programme met un peu moins d'une seconde pour construire 
+la structure de Burrows-Wheeler et environ 15 minutes pour la recherche. Au final 85% des reads sont alignés. J'ai généré un fichier resultsEbola.txt qui se trouve dans le 
+dossier data. Dans ce fichier il y a le nom du read suivi de la position où le read a été aligné dans le génome, de l'alignement du read avec la séquence génomique puis 
+du pourcentage d'erreurs dans l'alignement.
+
+Pour tester le programme lancer l'exécutable readMapper.jar comme ceci:
+java -jar readMapper.jar <genome> <reads> <longueur des graines> <match> <sub> <gap> <taux d'erreurs acceptees>
+
+Mes jeux de tests se situent dans le dossier data: testgenome.txt pour le génome et testreads.txt pour les reads. Un fichier results.txt est généré dans le dossier data/.
+
+Pierrick Deshayes
