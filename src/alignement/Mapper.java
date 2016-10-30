@@ -45,7 +45,7 @@ public class Mapper {
 	 * @param match cout d'un match
 	 * @param sub cout d'une substitution
 	 * @param gap cout d'une insertion/deletion
-	 * @param p le taux d'erreurs acceptees
+	 * @param t le taux d'erreurs acceptees
 	 * @return le meilleur alignement concernant une graine
 	 */
 	public Alignement extend(Seed seed, int match, int sub, int gap, double t) {
